@@ -1,0 +1,66 @@
+{
+  "name": "infra-repo",
+  "version": "0.1.15",
+  "bin": {
+    "infra-repo": "bin/infra-repo.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "test:fga": "jest ./*/fineGrained.test.ts --passWithNoTests",
+    "test:snap": "jest ./*/snapshot.test.ts --passWithNoTests",
+    "cdk": "cdk",
+    "prepare": "husky",
+    "format:ci": "prettier --check '*/**/*.ts'",
+    "format:fix": "prettier --write '*/**/*.ts'",
+    "lint:ci": "ESLINT_USE_FLAT_CONFIG=true eslint '*/**/*.ts' --max-warnings 0",
+    "lint:fix": "ESLINT_USE_FLAT_CONFIG=true eslint '*/**/*.ts' --max-warnings 0 --fix",
+    "md-lint-fix": "prettier --write '*/**/*.md' && markdownlint-cli2 '*/**/*.md'",
+    "release": "standard-version && git push --follow-tags",
+    "depcheck": "depcheck"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "@eslint/js": "^9.12.0",
+    "@types/jest": "^29.5.13",
+    "@types/node": "20.16.11",
+    "aws-cdk": "2.161.1",
+    "depcheck": "^1.4.7",
+    "esbuild": "^0.24.0",
+    "eslint": "^9.12.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "jest": "^29.7.0",
+    "lint-staged": "^15.2.10",
+    "markdownlint-cli2": "^0.14.0",
+    "prettier": "^3.3.3",
+    "standard-version": "^9.5.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.8.1",
+    "winston": "^3.15.0"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.161.1",
+    "cdk-nag": "^2.29.1",
+    "constructs": "^10.3.0",
+    "husky": "^9.1.6",
+    "tsx": "^4.19.1"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "npm run lint:ci"
+    ],
+    "*.md": [
+      "prettier --write",
+      "markdownlint-cli2"
+    ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  }
+}

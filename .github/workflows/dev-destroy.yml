@@ -1,0 +1,70 @@
+########################################################################
+# 開発環境用自動スタック削除
+# コスト節約のためスケジュール設定で起動
+########################################################################
+
+name: dev-destroy-action
+run-name: ${{ github.workflow }} workflow
+on:
+  schedule:
+    - cron:  '00 4,14 * * *'
+  workflow_dispatch:
+    inputs:
+      stack:
+        type: choice
+        description: target stack
+        default: dev/*
+        options:
+          - dev/*
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: dev
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - run: cat $GITHUB_EVENT_PATH
+      - run: lsb_release -d
+      - run: gh --version
+      - run: aws --version
+
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
+          aws-region: ap-northeast-1
+      - run: aws sts get-caller-identity
+
+      - name: Use Node.js 18.18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.18.x
+
+      - name: Cache dependencies
+        id: node_modules_cache_id
+        uses: actions/cache@v4
+        with:
+          path: '**/node_modules'
+          key: node-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Setup dependencies
+        if: ${{ steps.node_modules_cache_id.outputs.cache-hit != 'true' }}
+        run: npm ci
+
+      - name: set env variables
+        env:
+          ENV_NAME: ${{ vars.ENV_NAME }}
+        run: |
+          echo "ENV_NAME=${{ env.ENV_NAME }}"
+          echo "ENV_NAME=${{ env.ENV_NAME }}" >> $GITHUB_ENV
+          echo "DEV_ACCOUNT_ID=${{ secrets.DEV_ACCOUNT_ID }}" >> $GITHUB_ENV
+          echo "PROD_ACCOUNT_ID=${{ secrets.PROD_ACCOUNT_ID }}" >> $GITHUB_ENV
+
+      - run: npx cdk destroy -f ${{ github.event.inputs.stack || 'dev/data-str-sample*' }}
