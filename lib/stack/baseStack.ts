@@ -1,6 +1,7 @@
 import { Stack, type StackProps } from 'aws-cdk-lib'
 import { type Construct } from 'constructs'
 
+import { Ec2AutoStartStop } from '../construct/ec2AutoStartStop'
 import { MyS3Bucket } from '../construct/myS3'
 
 /**
@@ -11,9 +12,13 @@ export class BaseStack extends Stack {
     super(scope, id, props)
 
     /*
-    * S3
+    * EC2インスタンス自動起動停止
     -------------------------------------------------------------------------- */
-    new MyS3Bucket(this, 'Bucket1', {})
-    new MyS3Bucket(this, 'Bucket2', {})
+    new MyS3Bucket(this, 'Bucket', {})
+
+    /*
+    * EC2インスタンス自動起動停止
+    -------------------------------------------------------------------------- */
+    new Ec2AutoStartStop(this, 'Ec2AutoStartStop')
   }
 }

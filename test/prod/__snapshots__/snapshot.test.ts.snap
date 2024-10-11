@@ -10,7 +10,26 @@ exports[`baseStack 1`] = `
     },
   },
   "Resources": {
-    "Bucket1Bucket32507C94": {
+    "BucketAutoDeleteObjectsCustomResource055E5DCD": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "BucketPolicy2A6F133E",
+      ],
+      "Properties": {
+        "BucketName": {
+          "Ref": "BucketD7FEB781",
+        },
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::S3AutoDeleteObjects",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "BucketD7FEB781": {
       "DeletionPolicy": "Delete",
       "Properties": {
         "BucketEncryption": {
@@ -32,29 +51,10 @@ exports[`baseStack 1`] = `
       "Type": "AWS::S3::Bucket",
       "UpdateReplacePolicy": "Delete",
     },
-    "Bucket1BucketAutoDeleteObjectsCustomResource64CD897C": {
-      "DeletionPolicy": "Delete",
-      "DependsOn": [
-        "Bucket1BucketPolicy8D5F4E42",
-      ],
-      "Properties": {
-        "BucketName": {
-          "Ref": "Bucket1Bucket32507C94",
-        },
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "Custom::S3AutoDeleteObjects",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "Bucket1BucketPolicy8D5F4E42": {
+    "BucketPolicy2A6F133E": {
       "Properties": {
         "Bucket": {
-          "Ref": "Bucket1Bucket32507C94",
+          "Ref": "BucketD7FEB781",
         },
         "PolicyDocument": {
           "Statement": [
@@ -72,7 +72,7 @@ exports[`baseStack 1`] = `
               "Resource": [
                 {
                   "Fn::GetAtt": [
-                    "Bucket1Bucket32507C94",
+                    "BucketD7FEB781",
                     "Arn",
                   ],
                 },
@@ -82,7 +82,7 @@ exports[`baseStack 1`] = `
                     [
                       {
                         "Fn::GetAtt": [
-                          "Bucket1Bucket32507C94",
+                          "BucketD7FEB781",
                           "Arn",
                         ],
                       },
@@ -111,7 +111,7 @@ exports[`baseStack 1`] = `
               "Resource": [
                 {
                   "Fn::GetAtt": [
-                    "Bucket1Bucket32507C94",
+                    "BucketD7FEB781",
                     "Arn",
                   ],
                 },
@@ -121,134 +121,7 @@ exports[`baseStack 1`] = `
                     [
                       {
                         "Fn::GetAtt": [
-                          "Bucket1Bucket32507C94",
-                          "Arn",
-                        ],
-                      },
-                      "/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-      },
-      "Type": "AWS::S3::BucketPolicy",
-    },
-    "Bucket2BucketAutoDeleteObjectsCustomResource08A994C0": {
-      "DeletionPolicy": "Delete",
-      "DependsOn": [
-        "Bucket2BucketPolicy2CAC7A10",
-      ],
-      "Properties": {
-        "BucketName": {
-          "Ref": "Bucket2BucketDDB1BF36",
-        },
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "Custom::S3AutoDeleteObjects",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "Bucket2BucketDDB1BF36": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "BucketEncryption": {
-          "ServerSideEncryptionConfiguration": [
-            {
-              "ServerSideEncryptionByDefault": {
-                "SSEAlgorithm": "AES256",
-              },
-            },
-          ],
-        },
-        "Tags": [
-          {
-            "Key": "aws-cdk:auto-delete-objects",
-            "Value": "true",
-          },
-        ],
-      },
-      "Type": "AWS::S3::Bucket",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "Bucket2BucketPolicy2CAC7A10": {
-      "Properties": {
-        "Bucket": {
-          "Ref": "Bucket2BucketDDB1BF36",
-        },
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": "s3:*",
-              "Condition": {
-                "Bool": {
-                  "aws:SecureTransport": "false",
-                },
-              },
-              "Effect": "Deny",
-              "Principal": {
-                "AWS": "*",
-              },
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "Bucket2BucketDDB1BF36",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "Bucket2BucketDDB1BF36",
-                          "Arn",
-                        ],
-                      },
-                      "/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            {
-              "Action": [
-                "s3:PutBucketPolicy",
-                "s3:GetBucket*",
-                "s3:List*",
-                "s3:DeleteObject*",
-              ],
-              "Effect": "Allow",
-              "Principal": {
-                "AWS": {
-                  "Fn::GetAtt": [
-                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
-                    "Arn",
-                  ],
-                },
-              },
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "Bucket2BucketDDB1BF36",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "Bucket2BucketDDB1BF36",
+                          "BucketD7FEB781",
                           "Arn",
                         ],
                       },
@@ -281,7 +154,7 @@ exports[`baseStack 1`] = `
             [
               "Lambda function for auto-deleting objects in ",
               {
-                "Ref": "Bucket1Bucket32507C94",
+                "Ref": "BucketD7FEB781",
               },
               " S3 bucket.",
             ],
@@ -322,131 +195,73 @@ exports[`baseStack 1`] = `
       },
       "Type": "AWS::IAM::Role",
     },
-  },
-  "Rules": {
-    "CheckBootstrapVersion": {
-      "Assertions": [
-        {
-          "Assert": {
-            "Fn::Not": [
+    "Ec2AutoStartStopAutoStartRG18FF9080": {
+      "Properties": {
+        "Name": "prod-kasio-base-stack-AutoStart",
+        "ResourceQuery": {
+          "Query": {
+            "ResourceTypeFilters": [
+              "AWS::EC2::Instance",
+            ],
+            "TagFilters": [
               {
-                "Fn::Contains": [
-                  [
-                    "1",
-                    "2",
-                    "3",
-                    "4",
-                    "5",
-                  ],
-                  {
-                    "Ref": "BootstrapVersion",
-                  },
+                "Key": "AutoStart",
+                "Values": [
+                  "true",
                 ],
               },
             ],
           },
-          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+          "Type": "TAG_FILTERS_1_0",
         },
-      ],
-    },
-  },
-}
-`;
-
-exports[`mainAppStack 1`] = `
-{
-  "Outputs": {
-    "ExportFunctionName": {
-      "Export": {
-        "Name": "FunctionName",
       },
-      "Value": {
-        "Ref": "LambdaFunc4144DB58",
-      },
+      "Type": "AWS::ResourceGroups::Group",
     },
-  },
-  "Parameters": {
-    "BootstrapVersion": {
-      "Default": "/cdk-bootstrap/hnb659fds/version",
-      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
-      "Type": "AWS::SSM::Parameter::Value<String>",
-    },
-  },
-  "Resources": {
-    "LambdaFunc4144DB58": {
-      "DependsOn": [
-        "LambdaFuncServiceRole730F636A",
-      ],
+    "Ec2AutoStartStopAutoStopRG5465CF21": {
       "Properties": {
-        "Architectures": [
-          "arm64",
-        ],
-        "Code": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-ap-northeast-1",
-          },
-          "S3Key": "HASH-REPLACED.zip",
-        },
-        "Environment": {
-          "Variables": {
-            "TABLE_NAME": "hogehoge",
-          },
-        },
-        "Handler": "index.handler",
-        "Layers": [
-          {
-            "Ref": "LambdaFuncLambdaLayer848DD9AF",
-          },
-        ],
-        "Role": {
-          "Fn::GetAtt": [
-            "LambdaFuncServiceRole730F636A",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs20.x",
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "LambdaFuncLambdaLayer848DD9AF": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "CompatibleArchitectures": [
-          "arm64",
-        ],
-        "CompatibleRuntimes": [
-          "nodejs20.x",
-        ],
-        "Content": {
-          "S3Bucket": {
-            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-ap-northeast-1",
-          },
-          "S3Key": "HASH-REPLACED.zip",
-        },
-      },
-      "Type": "AWS::Lambda::LayerVersion",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "LambdaFuncLogGroup93E40A45": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "LogGroupName": {
-          "Fn::Join": [
-            "",
-            [
-              "/aws/lambda/",
+        "Name": "prod-kasio-base-stack-AutoStop",
+        "ResourceQuery": {
+          "Query": {
+            "ResourceTypeFilters": [
+              "AWS::EC2::Instance",
+            ],
+            "TagFilters": [
               {
-                "Ref": "LambdaFunc4144DB58",
+                "Key": "AutoStop",
+                "Values": [
+                  "true",
+                ],
               },
             ],
-          ],
+          },
+          "Type": "TAG_FILTERS_1_0",
         },
-        "RetentionInDays": 731,
       },
-      "Type": "AWS::Logs::LogGroup",
-      "UpdateReplacePolicy": "Delete",
+      "Type": "AWS::ResourceGroups::Group",
     },
-    "LambdaFuncServiceRole730F636A": {
+    "Ec2AutoStartStopMaintenanceWindowStartB77CA08D": {
+      "Properties": {
+        "AllowUnassociatedTargets": false,
+        "Cutoff": 0,
+        "Duration": 1,
+        "Name": "prod-kasio-base-stack-AutoStart",
+        "Schedule": "cron(0, 9 ? * MON-FRI *)",
+        "ScheduleTimezone": "Japan",
+      },
+      "Type": "AWS::SSM::MaintenanceWindow",
+    },
+    "Ec2AutoStartStopMaintenanceWindowStopA301238F": {
+      "Properties": {
+        "AllowUnassociatedTargets": false,
+        "Cutoff": 0,
+        "Duration": 1,
+        "Name": "prod-kasio-base-stack-AutoStop",
+        "Schedule": "cron(0, 22 ? * * *)",
+        "ScheduleTimezone": "Japan",
+      },
+      "Type": "AWS::SSM::MaintenanceWindow",
+    },
+    "Ec2AutoStartStopStartInstanceRole10EEC543": {
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -454,28 +269,267 @@ exports[`mainAppStack 1`] = `
               "Action": "sts:AssumeRole",
               "Effect": "Allow",
               "Principal": {
-                "Service": "lambda.amazonaws.com",
+                "Service": "ssm.amazonaws.com",
               },
             },
           ],
           "Version": "2012-10-17",
         },
-        "ManagedPolicyArns": [
+        "Policies": [
           {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
+            "PolicyDocument": {
+              "Statement": [
                 {
-                  "Ref": "AWS::Partition",
+                  "Action": [
+                    "ssm:StartAutomationExecution",
+                    "ssm:GetAutomationExecution",
+                    "ssm:DescribeAutomationExecutions",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": "*",
                 },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+                {
+                  "Action": [
+                    "resource-groups:ListGroups",
+                    "resource-groups:ListGroupResources",
+                    "resource-groups:GetGroup",
+                    "resource-groups:GetGroupQuery",
+                    "resource-groups:SearchResources",
+                    "tag:Get*",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": "*",
+                },
+                {
+                  "Action": "ec2:DescribeInstanceStatus",
+                  "Effect": "Allow",
+                  "Resource": "*",
+                },
+                {
+                  "Action": [
+                    "ec2:StartInstances",
+                    "ec2:DescribeInstances",
+                  ],
+                  "Condition": {
+                    "StringEquals": {
+                      "ec2:ResourceTag/AutoStart": "true",
+                    },
+                  },
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:ec2:ap-northeast-1:",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":instance/*",
+                      ],
+                    ],
+                  },
+                },
               ],
-            ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "policy",
           },
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "Ec2AutoStartStopStartTaskCD0C152F": {
+      "Properties": {
+        "MaxConcurrency": "1",
+        "MaxErrors": "1",
+        "Priority": 1,
+        "ServiceRoleArn": {
+          "Fn::GetAtt": [
+            "Ec2AutoStartStopStartInstanceRole10EEC543",
+            "Arn",
+          ],
+        },
+        "Targets": [
+          {
+            "Key": "WindowTargetIds",
+            "Values": [
+              {
+                "Ref": "Ec2AutoStartStopStartWindowTarget7DD11987",
+              },
+            ],
+          },
+        ],
+        "TaskArn": "AWS-StartEC2Instance",
+        "TaskInvocationParameters": {
+          "MaintenanceWindowAutomationParameters": {
+            "DocumentVersion": "1",
+            "Parameters": {
+              "InstanceId": [
+                "{{RESOURCE_ID}}",
+              ],
+            },
+          },
+        },
+        "TaskType": "AUTOMATION",
+        "WindowId": {
+          "Ref": "Ec2AutoStartStopMaintenanceWindowStartB77CA08D",
+        },
+      },
+      "Type": "AWS::SSM::MaintenanceWindowTask",
+    },
+    "Ec2AutoStartStopStartWindowTarget7DD11987": {
+      "Properties": {
+        "ResourceType": "RESOURCE_GROUP",
+        "Targets": [
+          {
+            "Key": "resource-groups:Name",
+            "Values": [
+              {
+                "Ref": "Ec2AutoStartStopAutoStartRG18FF9080",
+              },
+            ],
+          },
+        ],
+        "WindowId": {
+          "Ref": "Ec2AutoStartStopMaintenanceWindowStartB77CA08D",
+        },
+      },
+      "Type": "AWS::SSM::MaintenanceWindowTarget",
+    },
+    "Ec2AutoStartStopStopInstanceRoleAC08D5DC": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ssm.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": [
+                    "ssm:StartAutomationExecution",
+                    "ssm:GetAutomationExecution",
+                    "ssm:DescribeAutomationExecutions",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": "*",
+                },
+                {
+                  "Action": [
+                    "resource-groups:ListGroups",
+                    "resource-groups:ListGroupResources",
+                    "resource-groups:GetGroup",
+                    "resource-groups:GetGroupQuery",
+                    "resource-groups:SearchResources",
+                    "tag:Get*",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": "*",
+                },
+                {
+                  "Action": "ec2:DescribeInstanceStatus",
+                  "Effect": "Allow",
+                  "Resource": "*",
+                },
+                {
+                  "Action": [
+                    "ec2:StopInstances",
+                    "ec2:DescribeInstances",
+                  ],
+                  "Condition": {
+                    "StringEquals": {
+                      "ec2:ResourceTag/AutoStop": "true",
+                    },
+                  },
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:ec2:ap-northeast-1:",
+                        {
+                          "Ref": "AWS::AccountId",
+                        },
+                        ":instance/*",
+                      ],
+                    ],
+                  },
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "policy",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "Ec2AutoStartStopStopTask61A94EC6": {
+      "Properties": {
+        "MaxConcurrency": "1",
+        "MaxErrors": "1",
+        "Priority": 1,
+        "ServiceRoleArn": {
+          "Fn::GetAtt": [
+            "Ec2AutoStartStopStopInstanceRoleAC08D5DC",
+            "Arn",
+          ],
+        },
+        "Targets": [
+          {
+            "Key": "WindowTargetIds",
+            "Values": [
+              {
+                "Ref": "Ec2AutoStartStopStopWindowTarget84268B5D",
+              },
+            ],
+          },
+        ],
+        "TaskArn": "AWS-StopEC2Instance",
+        "TaskInvocationParameters": {
+          "MaintenanceWindowAutomationParameters": {
+            "DocumentVersion": "1",
+            "Parameters": {
+              "InstanceId": [
+                "{{RESOURCE_ID}}",
+              ],
+            },
+          },
+        },
+        "TaskType": "AUTOMATION",
+        "WindowId": {
+          "Ref": "Ec2AutoStartStopMaintenanceWindowStopA301238F",
+        },
+      },
+      "Type": "AWS::SSM::MaintenanceWindowTask",
+    },
+    "Ec2AutoStartStopStopWindowTarget84268B5D": {
+      "Properties": {
+        "ResourceType": "RESOURCE_GROUP",
+        "Targets": [
+          {
+            "Key": "resource-groups:Name",
+            "Values": [
+              {
+                "Ref": "Ec2AutoStartStopAutoStopRG5465CF21",
+              },
+            ],
+          },
+        ],
+        "WindowId": {
+          "Ref": "Ec2AutoStartStopMaintenanceWindowStopA301238F",
+        },
+      },
+      "Type": "AWS::SSM::MaintenanceWindowTarget",
     },
   },
   "Rules": {

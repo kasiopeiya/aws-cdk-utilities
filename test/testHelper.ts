@@ -36,16 +36,4 @@ export function executeCommonTests(templates: Record<string, Template>): void {
       })
     })
   })
-
-  describe('MainAppStack', () => {
-    test('関数がTABLE_NAMEというkeyの環境変数を持っている', () => {
-      templates.mainAppStack.hasResourceProperties('AWS::Lambda::Function', {
-        Environment: {
-          Variables: {
-            TABLE_NAME: Match.anyValue()
-          }
-        }
-      })
-    })
-  })
 }
