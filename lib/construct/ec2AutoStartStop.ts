@@ -1,8 +1,8 @@
 import { Construct } from 'constructs'
-import * as ssm from 'aws-cdk-lib/aws-ssm'
-import * as rg from 'aws-cdk-lib/aws-resourcegroups'
-import * as iam from 'aws-cdk-lib/aws-iam'
 import { Stack } from 'aws-cdk-lib'
+import { aws_ssm as ssm } from 'aws-cdk-lib'
+import { aws_resourcegroups as rg } from 'aws-cdk-lib'
+import { aws_iam as iam } from 'aws-cdk-lib'
 
 export class CronSchedule {
   public static readonly WEEKDAY6AM = CronSchedule.of('cron(0, 6 ? * MON-FRI *)')

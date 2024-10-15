@@ -1,9 +1,9 @@
 import { Construct } from 'constructs'
 import { RemovalPolicy } from 'aws-cdk-lib'
-import * as s3 from 'aws-cdk-lib/aws-s3'
+import { aws_s3 as s3 } from 'aws-cdk-lib'
 
 export class MyS3Bucket extends Construct {
-  public readonly bucket: s3.Bucket
+  public readonly bucket: s3.IBucket
 
   constructor(scope: Construct, id: string, props: s3.BucketProps) {
     super(scope, id)
