@@ -24,8 +24,8 @@ interface Event {
   }
 }
 
-const cloudFormationClient = new CloudFormationClient({})
-const s3Client = new S3Client({})
+const cloudFormationClient = new CloudFormationClient({ region: process.env.AWS_DEFAULT_REGION })
+const s3Client = new S3Client({ region: process.env.AWS_DEFAULT_REGION })
 
 /**
  * メイン
