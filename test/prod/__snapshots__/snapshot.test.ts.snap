@@ -137,6 +137,266 @@ exports[`baseStack 1`] = `
       },
       "Type": "AWS::S3::BucketPolicy",
     },
+    "CfnEventLoggerEventLogBucketEBAEA529": {
+      "DeletionPolicy": "RetainExceptOnCreate",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256",
+              },
+            },
+          ],
+        },
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "CfnEventLoggerEventLogBucketPolicy46ECD90D": {
+      "Properties": {
+        "Bucket": {
+          "Ref": "CfnEventLoggerEventLogBucketEBAEA529",
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false",
+                },
+              },
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*",
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "CfnEventLoggerEventLogBucketEBAEA529",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "CfnEventLoggerEventLogBucketEBAEA529",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+    "CfnEventLoggerLambdaFuncB3CFE6BC": {
+      "DependsOn": [
+        "CfnEventLoggerLambdaFuncServiceRoleDefaultPolicyB57F1353",
+        "CfnEventLoggerLambdaFuncServiceRole5BDE689F",
+      ],
+      "Properties": {
+        "Architectures": [
+          "arm64",
+        ],
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-ap-northeast-1",
+          },
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "BUCKET_NAME": {
+              "Ref": "CfnEventLoggerEventLogBucketEBAEA529",
+            },
+          },
+        },
+        "Handler": "index.lambdaHandler",
+        "LoggingConfig": {
+          "LogFormat": "JSON",
+          "SystemLogLevel": "WARN",
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "CfnEventLoggerLambdaFuncServiceRole5BDE689F",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs20.x",
+        "Timeout": 180,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "CfnEventLoggerLambdaFuncServiceRole5BDE689F": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CfnEventLoggerLambdaFuncServiceRoleDefaultPolicyB57F1353": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "CfnEventLoggerEventLogBucketEBAEA529",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "CfnEventLoggerEventLogBucketEBAEA529",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "cloudformation:DescribeStackEvents",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CfnEventLoggerLambdaFuncServiceRoleDefaultPolicyB57F1353",
+        "Roles": [
+          {
+            "Ref": "CfnEventLoggerLambdaFuncServiceRole5BDE689F",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "CfnEventLoggerLogGroupE0D315B3": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "CfnEventLoggerLambdaFuncB3CFE6BC",
+              },
+            ],
+          ],
+        },
+        "RetentionInDays": 1,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "CfnEventLoggerRuleAllowEventRuleprodkasiobasestackCfnEventLoggerLambdaFuncEC6655546CD6AC6F": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "CfnEventLoggerLambdaFuncB3CFE6BC",
+            "Arn",
+          ],
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "CfnEventLoggerRuleBBD1168F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "CfnEventLoggerRuleBBD1168F": {
+      "Properties": {
+        "EventPattern": {
+          "detail": {
+            "status-details": {
+              "status": [
+                "CREATE_FAILED",
+                "UPDATE_ROLLBACK_COMPLETE",
+                "UPDATE_ROLLBACK_FAILED",
+                "DELETE_FAILED",
+              ],
+            },
+          },
+          "detail-type": [
+            "CloudFormation Stack Status Change",
+          ],
+          "source": [
+            "aws.cloudformation",
+          ],
+        },
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "CfnEventLoggerLambdaFuncB3CFE6BC",
+                "Arn",
+              ],
+            },
+            "Id": "Target0",
+          },
+        ],
+      },
+      "Type": "AWS::Events::Rule",
+    },
     "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
       "DependsOn": [
         "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
