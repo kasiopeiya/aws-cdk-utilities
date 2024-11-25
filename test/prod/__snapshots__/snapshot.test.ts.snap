@@ -791,6 +791,345 @@ exports[`baseStack 1`] = `
       },
       "Type": "AWS::SSM::MaintenanceWindowTarget",
     },
+    "FisLambdaTemplateAddLatencyFF048046": {
+      "Properties": {
+        "Actions": {
+          "instanceActions": {
+            "ActionId": "aws:lambda:invocation-add-delay",
+            "Description": "Add Delay in Lambda Startup",
+            "Parameters": {
+              "duration": "PT5M",
+              "invocationPercentage": "100",
+              "startupDelayMilliseconds": "0",
+            },
+            "Targets": {
+              "Functions": "TargetTaggedLambda",
+            },
+          },
+        },
+        "Description": "Lambda Latency Injection Fault",
+        "ExperimentOptions": {
+          "AccountTargeting": "single-account",
+          "EmptyTargetResolutionMode": "fail",
+        },
+        "LogConfiguration": {
+          "CloudWatchLogsConfiguration": {
+            "LogGroupArn": {
+              "Fn::GetAtt": [
+                "FisLambdaTemplateLogGroup75E407EA",
+                "Arn",
+              ],
+            },
+          },
+          "LogSchemaVersion": 2,
+        },
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "FisLambdaTemplateRoleD5BE786A",
+            "Arn",
+          ],
+        },
+        "StopConditions": [
+          {
+            "Source": "none",
+          },
+        ],
+        "Tags": {
+          "Name": "Lambda Latency Injection Fault",
+          "Stackname": "prod-kasio-base-stack",
+        },
+        "Targets": {
+          "TargetTaggedLambda": {
+            "ResourceTags": {
+              "FisLambdaTargetFlg": "true",
+            },
+            "ResourceType": "aws:lambda:function",
+            "SelectionMode": "ALL",
+          },
+        },
+      },
+      "Type": "AWS::FIS::ExperimentTemplate",
+    },
+    "FisLambdaTemplateBucket8AB4F414": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256",
+              },
+            },
+          ],
+        },
+        "BucketName": "prod-kasio-base-stack-fis-bucket",
+        "Tags": [
+          {
+            "Key": "aws-cdk:auto-delete-objects",
+            "Value": "true",
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "FisLambdaTemplateBucketAutoDeleteObjectsCustomResource78E57B63": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "FisLambdaTemplateBucketPolicy452463BF",
+      ],
+      "Properties": {
+        "BucketName": {
+          "Ref": "FisLambdaTemplateBucket8AB4F414",
+        },
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::S3AutoDeleteObjects",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "FisLambdaTemplateBucketPolicy452463BF": {
+      "Properties": {
+        "Bucket": {
+          "Ref": "FisLambdaTemplateBucket8AB4F414",
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:*",
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false",
+                },
+              },
+              "Effect": "Deny",
+              "Principal": {
+                "AWS": "*",
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "FisLambdaTemplateBucket8AB4F414",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "FisLambdaTemplateBucket8AB4F414",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:PutBucketPolicy",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::GetAtt": [
+                    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+                    "Arn",
+                  ],
+                },
+              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "FisLambdaTemplateBucket8AB4F414",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "FisLambdaTemplateBucket8AB4F414",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::S3::BucketPolicy",
+    },
+    "FisLambdaTemplateInvocationError3403DCA3": {
+      "Properties": {
+        "Actions": {
+          "instanceActions": {
+            "ActionId": "aws:lambda:invocation-error",
+            "Description": "Cause invocation errors",
+            "Parameters": {
+              "duration": "PT5M",
+              "invocationPercentage": "100",
+              "preventExecution": "true",
+            },
+            "Targets": {
+              "Functions": "TargetTaggedLambda",
+            },
+          },
+        },
+        "Description": "Lambda Latency Injection Fault",
+        "ExperimentOptions": {
+          "AccountTargeting": "single-account",
+          "EmptyTargetResolutionMode": "fail",
+        },
+        "LogConfiguration": {
+          "CloudWatchLogsConfiguration": {
+            "LogGroupArn": {
+              "Fn::GetAtt": [
+                "FisLambdaTemplateLogGroup75E407EA",
+                "Arn",
+              ],
+            },
+          },
+          "LogSchemaVersion": 2,
+        },
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "FisLambdaTemplateRoleD5BE786A",
+            "Arn",
+          ],
+        },
+        "StopConditions": [
+          {
+            "Source": "none",
+          },
+        ],
+        "Tags": {
+          "Name": "Cause invocation errors",
+          "Stackname": "prod-kasio-base-stack",
+        },
+        "Targets": {
+          "TargetTaggedLambda": {
+            "ResourceTags": {
+              "FisLambdaTargetFlg": "true",
+            },
+            "ResourceType": "aws:lambda:function",
+            "SelectionMode": "ALL",
+          },
+        },
+      },
+      "Type": "AWS::FIS::ExperimentTemplate",
+    },
+    "FisLambdaTemplateLogGroup75E407EA": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "RetentionInDays": 1,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "FisLambdaTemplateRoleD5BE786A": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "fis.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "FisLambdaTemplateRoleDefaultPolicy94BC2E88": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:CreateLogDelivery",
+                "logs:PutResourcePolicy",
+                "logs:DescribeResourcePolicies",
+                "logs:DescribeLogGroups",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": [
+                "s3:PutObject",
+                "s3:DeleteObject",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "FisLambdaTemplateBucket8AB4F414",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "FisLambdaTemplateBucket8AB4F414",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+              "Sid": "AllowWritingAndDeletingObjectFromConfigLocation",
+            },
+            {
+              "Action": "tag:GetResources",
+              "Effect": "Allow",
+              "Resource": "*",
+              "Sid": "AllowFisToDoTagLookups",
+            },
+            {
+              "Action": "lambda:GetFunction",
+              "Effect": "Allow",
+              "Resource": "*",
+              "Sid": "AllowFisToInspectLambdaFunctions",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "FisLambdaTemplateRoleDefaultPolicy94BC2E88",
+        "Roles": [
+          {
+            "Ref": "FisLambdaTemplateRoleD5BE786A",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
   },
   "Rules": {
     "CheckBootstrapVersion": {

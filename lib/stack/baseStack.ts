@@ -4,6 +4,7 @@ import { type Construct } from 'constructs'
 import { Ec2AutoStartStop } from '../construct/ec2AutoStartStop'
 import { MyS3Bucket } from '../construct/myS3'
 import { CfnEventLogger } from '../construct/cfnEventLogger'
+import { FisLambdaTemplate } from '../construct/fisLambdaTemplate'
 
 /**
  * ステートフルなリソースを構築する
@@ -28,5 +29,10 @@ export class BaseStack extends Stack {
     new CfnEventLogger(this, 'CfnEventLogger', {
       lambdaEntry: './resources/lambda/cfnEventLogger/index.ts'
     })
+
+    /*
+    * FIS Lambda実験テンプレート
+    -------------------------------------------------------------------------- */
+    new FisLambdaTemplate(this, 'FisLambdaTemplate')
   }
 }
