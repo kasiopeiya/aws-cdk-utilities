@@ -2,6 +2,8 @@
 
 ## FIS Lambda用実験テンプレート
 
+![img](./docs/img/fisLambda.png)
+
 ### FIS Lambda実験準備用Lambda関数実行
 
 aws lambda invoke --function-name dev-kasio-base-stack-fis-lambda-setup \
