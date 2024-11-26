@@ -7,7 +7,8 @@ import {
   UpdateFunctionConfigurationCommand,
   GetFunctionCommand,
   GetFunctionCommandInput,
-  GetFunctionCommandOutput
+  GetFunctionCommandOutput,
+  UntagResourceCommand
 } from '@aws-sdk/client-lambda'
 import { IAMClient, DetachRolePolicyCommand } from '@aws-sdk/client-iam'
 
@@ -21,6 +22,9 @@ const envVariableKeysToRemove = [
   'AWS_FIS_EXTENSION_METRICS',
   'AWS_FIS_CONFIGURATION_LOCATION'
 ]
+
+// FISターゲット識別用Tag
+const fisTargetTag = { FisLambdaTargetFlg: 'true' }
 
 /** 削除するLambda Layer */
 const FIS_EXTENTION_TOKYO_ARM64 =
@@ -61,13 +65,13 @@ async function main(functionName: string) {
   const roleName = roleArn.split('/')[1]
   await removeS3FullAccessPolicy(roleName)
 
-  // 削除する環境変数を除いた新しい環境変数のリストを作る
+  // 削除する環境変数を除いた実験設定追加前の環境変数のリストを作る
   const existingEnvVariables = response.Configuration?.Environment?.Variables ?? {}
   const newEnvVariables = Object.fromEntries(
     Object.entries(existingEnvVariables).filter(([key]) => !envVariableKeysToRemove.includes(key))
   )
 
-  // 削除するLambda Layerを除いた新しい環境変数のリストを作る
+  // 削除するLambda Layerを除いた実験設定追加前のLayerのリストを作る
   const existingLambdaLayers = response.Configuration?.Layers?.map((layer) => layer.Arn).filter(
     (layerArn) => layerArn !== undefined
   )
@@ -75,6 +79,11 @@ async function main(functionName: string) {
     (layerArn) => layerArn !== FIS_EXTENTION_TOKYO_ARM64 && layerArn !== FIS_EXTENTION_TOKYO_X86
   )
   await updateLambdaFunction(functionName, newEnvVariables, newLambdaLayers)
+
+  // FIS実験対象識別用tagの削除
+  const functionArn = response.Configuration?.FunctionArn
+  if (functionArn === undefined) throw new Error('Failed to get lambda function arn')
+  await removeTagFromFunction(functionArn, fisTargetTag)
 }
 
 /**
@@ -121,4 +130,18 @@ async function removeS3FullAccessPolicy(roleName: string) {
   })
 
   await iamClient.send(command)
+}
+
+/**
+ * Lambda関数からタグを削除する
+ * @param functionArn
+ * @param tags
+ */
+async function removeTagFromFunction(functionArn: string, tags: Record<string, string>) {
+  const command = new UntagResourceCommand({
+    Resource: functionArn,
+    TagKeys: Object.keys(tags)
+  })
+
+  await lambdaClient.send(command)
 }
