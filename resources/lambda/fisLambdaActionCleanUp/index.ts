@@ -38,7 +38,11 @@ export const handler = async (event: Event) => {
     const functionName = event?.targetLambdaName
     if (!functionName) throw new Error('Function Name is required.')
 
-    main(functionName)
+    console.log(`input, functionName: ${functionName}`)
+
+    await main(functionName)
+
+    console.log(`function ${functionName} updated successfully.`)
 
     return { statusCode: 200, body: 'Function updated successfully.' }
   } catch (error) {
@@ -46,10 +50,6 @@ export const handler = async (event: Event) => {
     return { statusCode: 500, body: `Error: ${error}` }
   }
 }
-
-handler({
-  targetLambdaName: 'dev-kasio-lambda-stack-LambdaFunc4144DB58-zjsfDbtPh7Ps'
-})
 
 async function main(functionName: string) {
   // Lambda関数のRoleを取得
@@ -74,7 +74,7 @@ async function main(functionName: string) {
   const newLambdaLayers = existingLambdaLayers?.filter(
     (layerArn) => layerArn !== FIS_EXTENTION_TOKYO_ARM64 && layerArn !== FIS_EXTENTION_TOKYO_X86
   )
-  updateLambdaFunction(functionName, newEnvVariables, newLambdaLayers)
+  await updateLambdaFunction(functionName, newEnvVariables, newLambdaLayers)
 }
 
 /**

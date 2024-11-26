@@ -39,10 +39,14 @@ export const handler = async (event: Event) => {
   try {
     const functionName = event?.targetLambdaName
     if (!functionName) throw new Error('Function Name is required.')
-    const bucketName = event?.fisBucketName
+    const bucketName = event?.fisBucketName ?? process.env.BUCKET_NAME
     if (!bucketName) throw new Error('Bucket Name is required.')
 
-    main(functionName, bucketName)
+    console.log(`input, functionName: ${functionName}, bucketName: ${bucketName}`)
+
+    await main(functionName, bucketName)
+
+    console.log(`function ${functionName} updated successfully.`)
 
     return { statusCode: 200, body: 'Function updated successfully.' }
   } catch (error) {
@@ -50,11 +54,6 @@ export const handler = async (event: Event) => {
     return { statusCode: 500, body: `Error: ${error}` }
   }
 }
-
-handler({
-  targetLambdaName: 'dev-kasio-lambda-stack-LambdaFunc4144DB58-zjsfDbtPh7Ps',
-  fisBucketName: 'dev-kasio-base-stack-fislambdatemplatebucket8ab4f4-4tls3aebchl5'
-})
 
 async function main(functionName: string, bucketName: string) {
   // Lambda関数のRoleを取得
@@ -85,7 +84,7 @@ async function main(functionName: string, bucketName: string) {
   existingLambdaLayers ??= []
   // すでにFIS用Layerが追加済みの場合を考慮して配列の重複を排除、重複の場合はエラーになる
   const layers = Array.from(new Set([...existingLambdaLayers, fisExtentionArn]))
-  updateLambdaFunction(functionName, envVariables, layers)
+  await updateLambdaFunction(functionName, envVariables, layers)
 }
 
 /**
