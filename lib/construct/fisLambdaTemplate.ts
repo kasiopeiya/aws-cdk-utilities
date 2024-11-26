@@ -4,6 +4,8 @@ import { aws_s3 as s3 } from 'aws-cdk-lib'
 import { aws_iam as iam } from 'aws-cdk-lib'
 import { aws_fis as fis } from 'aws-cdk-lib'
 import { aws_logs as logs } from 'aws-cdk-lib'
+import { aws_lambda as lambda } from 'aws-cdk-lib'
+import { aws_lambda_nodejs as nodejsLambda } from 'aws-cdk-lib'
 
 export interface FisLambdaTemplateProps {
   /** 対象となるLambda関数のタグ名 */
@@ -16,6 +18,10 @@ export interface FisLambdaTemplateProps {
   faultInvocationPercentage?: number
   /** Add Latencyでのみ使用、障害注入を遅延させる時間 */
   startupDelayTime?: Duration
+  /** 実験準備用Lambda関数の実装パス */
+  setupLambdaPath?: string
+  /** 実験設定削除用Lambda関数の実装パス */
+  cleanupLambdaPath?: string
 }
 
 /**
@@ -197,5 +203,78 @@ export class FisLambdaTemplate extends Construct {
         Stackname: Stack.of(this).stackName
       }
     })
+
+    /*
+    /* Lambda
+    -------------------------------------------------------------------------- */
+    const updateLambdaPolicyStatement = new iam.PolicyStatement({
+      actions: [
+        'lambda:GetFunction',
+        'lambda:UpdateFunctionConfiguration',
+        'lambda:GetLayerVersion',
+        'lambda:TagResource',
+        'lambda:UntagResource'
+      ],
+      resources: ['*']
+    })
+
+    // FIS実験設定追加用Lambda関数
+    if (props.setupLambdaPath !== undefined) {
+      const setupLambdaFunc = new nodejsLambda.NodejsFunction(this, 'SetupLambda', {
+        functionName: `${Stack.of(this).stackName}-fis-lambda-setup`,
+        entry: props.setupLambdaPath,
+        handler: 'handler',
+        runtime: lambda.Runtime.NODEJS_20_X,
+        architecture: lambda.Architecture.ARM_64,
+        timeout: Duration.minutes(3),
+        loggingFormat: lambda.LoggingFormat.JSON,
+        systemLogLevelV2: lambda.SystemLogLevel.WARN,
+        environment: {
+          BUCKET_NAME: fisBucket.bucketName
+        }
+      })
+      setupLambdaFunc.addToRolePolicy(
+        new iam.PolicyStatement({
+          actions: ['iam:AttachRolePolicy'],
+          resources: ['*']
+        })
+      )
+      setupLambdaFunc.addToRolePolicy(updateLambdaPolicyStatement)
+
+      // LogGroup
+      new logs.LogGroup(this, 'SetupLambdaLogGroup', {
+        logGroupName: `/aws/lambda/${setupLambdaFunc.functionName}`,
+        removalPolicy: RemovalPolicy.DESTROY,
+        retention: logs.RetentionDays.ONE_DAY
+      })
+    }
+
+    // FIS実験設定削除用Lambda関数
+    if (props.cleanupLambdaPath !== undefined) {
+      const cleanupLambdaFunc = new nodejsLambda.NodejsFunction(this, 'CleanupLambda', {
+        functionName: `${Stack.of(this).stackName}-fis-lambda-cleanup`,
+        entry: props.cleanupLambdaPath,
+        handler: 'handler',
+        runtime: lambda.Runtime.NODEJS_20_X,
+        architecture: lambda.Architecture.ARM_64,
+        timeout: Duration.minutes(3),
+        loggingFormat: lambda.LoggingFormat.JSON,
+        systemLogLevelV2: lambda.SystemLogLevel.WARN
+      })
+      cleanupLambdaFunc.addToRolePolicy(
+        new iam.PolicyStatement({
+          actions: ['iam:DetachRolePolicy'],
+          resources: ['*']
+        })
+      )
+      cleanupLambdaFunc.addToRolePolicy(updateLambdaPolicyStatement)
+
+      // LogGroup
+      new logs.LogGroup(this, 'CleanupLambdaLogGroup', {
+        logGroupName: `/aws/lambda/${cleanupLambdaFunc.functionName}`,
+        removalPolicy: RemovalPolicy.DESTROY,
+        retention: logs.RetentionDays.ONE_DAY
+      })
+    }
   }
 }

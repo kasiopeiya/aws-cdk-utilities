@@ -33,6 +33,9 @@ export class BaseStack extends Stack {
     /*
     * FIS Lambda実験テンプレート
     -------------------------------------------------------------------------- */
-    new FisLambdaTemplate(this, 'FisLambdaTemplate')
+    new FisLambdaTemplate(this, 'FisLambdaTemplate', {
+      setupLambdaPath: './resources/lambda/fisLambdaActionSetup/index.ts',
+      cleanupLambdaPath: './resources/lambda/fisLambdaActionCleanUp/index.ts'
+    })
   }
 }
