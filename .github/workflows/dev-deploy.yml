@@ -64,5 +64,5 @@ jobs:
         with:
           env_name: ${{ env.ENV_NAME }}
 
-      - name: cdk deploy
-        run: npx cdk deploy "${{ env.ENV_NAME }}/*"
+      # - name: cdk deploy
+      #   run: npx cdk deploy "${{ env.ENV_NAME }}/*"
