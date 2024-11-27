@@ -32,6 +32,12 @@ const FIS_EXTENTION_TOKYO_ARM64 =
 const FIS_EXTENTION_TOKYO_X86 =
   'arn:aws:lambda:ap-northeast-1:339712942424:layer:aws-fis-extension-x86_64:9'
 
+/** Lambda関数にアタッチするIAM PolicyのArn */
+const detachPolicyArns = [
+  'arn:aws:iam::aws:policy/AmazonS3FullAccess',
+  'arn:aws:iam::aws:policy/CloudWatchFullAccessV2'
+]
+
 interface Event {
   /** 障害注入対象のLambda関数名 */
   targetLambdaName: string
@@ -63,7 +69,7 @@ async function main(functionName: string) {
   const roleArn = response.Configuration?.Role
   if (roleArn === undefined) throw new Error('Failed to get lambda role')
   const roleName = roleArn.split('/')[1]
-  await removeS3FullAccessPolicy(roleName)
+  await removePolicy(roleName, detachPolicyArns)
 
   // 削除する環境変数を除いた実験設定追加前の環境変数のリストを作る
   const existingEnvVariables = response.Configuration?.Environment?.Variables ?? {}
@@ -120,16 +126,17 @@ async function updateLambdaFunction(
 }
 
 /**
- * LambdaのIAM PolicyからS3フルアクセスを削除
+ * LambdaのIAM RoleからIAM Policyを削除
  * @param roleName
  */
-async function removeS3FullAccessPolicy(roleName: string) {
-  const command = new DetachRolePolicyCommand({
-    RoleName: roleName,
-    PolicyArn: 'arn:aws:iam::aws:policy/AmazonS3FullAccess'
-  })
-
-  await iamClient.send(command)
+async function removePolicy(roleName: string, policyArns: string[]) {
+  for (const policyArn of policyArns) {
+    const attachPolicyCommand = new DetachRolePolicyCommand({
+      RoleName: roleName,
+      PolicyArn: policyArn
+    })
+    await iamClient.send(attachPolicyCommand)
+  }
 }
 
 /**

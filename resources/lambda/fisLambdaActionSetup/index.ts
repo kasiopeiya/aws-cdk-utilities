@@ -32,6 +32,12 @@ const FIS_EXTENTION_TOKYO_ARM64 =
 const FIS_EXTENTION_TOKYO_X86 =
   'arn:aws:lambda:ap-northeast-1:339712942424:layer:aws-fis-extension-x86_64:9'
 
+/** Lambda関数にアタッチするIAM PolicyのArn */
+const attachPolicyArns = [
+  'arn:aws:iam::aws:policy/AmazonS3FullAccess',
+  'arn:aws:iam::aws:policy/CloudWatchFullAccessV2'
+]
+
 interface Event {
   /** 障害注入対象のLambda関数名 */
   targetLambdaName: string
@@ -67,7 +73,7 @@ async function main(functionName: string, bucketName: string) {
   const roleArn = response.Configuration?.Role
   if (roleArn === undefined) throw new Error('Failed to get lambda role')
   const roleName = roleArn.split('/')[1]
-  await addS3FullAccessPolicy(roleName)
+  await addToPolicy(roleName, attachPolicyArns)
 
   // 既存の環境変数を含む新しい環境変数のリストを作成
   const existingEnvVariables = response.Configuration?.Environment?.Variables
@@ -131,16 +137,17 @@ async function updateLambdaFunction(
 }
 
 /**
- * LambdaのIAM PolicyにS3フルアクセスを追加
+ * LambdaのIAM RoleにIAM Policyを追加
  * @param roleName
  */
-async function addS3FullAccessPolicy(roleName: string) {
-  const attachPolicyCommand = new AttachRolePolicyCommand({
-    RoleName: roleName,
-    PolicyArn: 'arn:aws:iam::aws:policy/AmazonS3FullAccess'
-  })
-
-  await iamClient.send(attachPolicyCommand)
+async function addToPolicy(roleName: string, policyArns: string[]) {
+  for (const policyArn of policyArns) {
+    const attachPolicyCommand = new AttachRolePolicyCommand({
+      RoleName: roleName,
+      PolicyArn: policyArn
+    })
+    await iamClient.send(attachPolicyCommand)
+  }
 }
 
 /**
