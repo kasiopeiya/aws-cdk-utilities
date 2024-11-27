@@ -46,7 +46,7 @@ export class FisLambdaTemplate extends Construct {
     /*
     /* S3
     -------------------------------------------------------------------------- */
-    // Lambda - FIS間で実験テンプレートを中継するためのバケット
+    // Lambda - FIS間で実験設定ファイルを中継するためのバケット
     const fisBucket = new s3.Bucket(this, 'Bucket', {
       bucketName: `${Stack.of(this).stackName}-fis-bucket`,
       autoDeleteObjects: true,
@@ -138,7 +138,7 @@ export class FisLambdaTemplate extends Construct {
         }
       ],
       actions: {
-        instanceActions: latencyActionProps
+        addLatency: latencyActionProps
       },
       targets: {
         TargetTaggedLambda: targetProps
@@ -183,7 +183,7 @@ export class FisLambdaTemplate extends Construct {
         }
       ],
       actions: {
-        instanceActions: invocationActionProps
+        invocationError: invocationActionProps
       },
       targets: {
         TargetTaggedLambda: targetProps

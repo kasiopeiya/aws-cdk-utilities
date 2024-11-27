@@ -667,7 +667,7 @@ exports[`baseStack 1`] = `
     "FisLambdaTemplateAddLatencyFF048046": {
       "Properties": {
         "Actions": {
-          "instanceActions": {
+          "addLatency": {
             "ActionId": "aws:lambda:invocation-add-delay",
             "Description": "Add Delay in Lambda Startup",
             "Parameters": {
@@ -968,7 +968,7 @@ exports[`baseStack 1`] = `
     "FisLambdaTemplateInvocationError3403DCA3": {
       "Properties": {
         "Actions": {
-          "instanceActions": {
+          "invocationError": {
             "ActionId": "aws:lambda:invocation-error",
             "Description": "Cause invocation errors",
             "Parameters": {
