@@ -78,6 +78,6 @@ jobs:
           echo "DEV_ACCOUNT_ID=${{ secrets.DEV_ACCOUNT_ID }}" >> $GITHUB_ENV
           echo "PROD_ACCOUNT_ID=${{ secrets.PROD_ACCOUNT_ID }}" >> $GITHUB_ENV
 
-      - run: npx cdk destroy -f "${{ env.STACK_NAME || 'dev/data-str-sample*' }}"
+      - run: npx cdk destroy -f "${{ env.STACK_NAME || 'dev/kasio*' }}"
         env:
           STACK_NAME: ${{ github.event.inputs.stack }}
