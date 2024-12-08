@@ -38,7 +38,7 @@
     "standard-version": "^9.5.0",
     "ts-jest": "^29.2.5",
     "typescript": "~5.6.2",
-    "typescript-eslint": "^8.8.1",
+    "typescript-eslint": "^8.17.0",
     "winston": "^3.15.0"
   },
   "dependencies": {
